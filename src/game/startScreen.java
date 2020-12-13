@@ -119,7 +119,7 @@ public class startScreen extends JFrame implements MouseListener {
     }
 
     private void printPokemons(Graphics g) {
-        g.setColor(Color.YELLOW);
+        //g.setColor(Color.YELLOW);
         for (Pokemon p : pokemons) {
             DWGraph_DS.Position pos = p.get_pos();
             int x = (int) scale(pos.x(), graphRange.xMin, graphRange.xMax, gamePanel.OFFSET, this.getWidth() - gamePanel.OFFSET);

@@ -29,6 +29,8 @@ public class gamePanel extends JPanel implements MouseListener {
     private HashMap<Integer, Point> nodesMap = new HashMap<>();
     public gameArena arena;
     Range graphRange;
+    List<Pokemon> pokemons = new ArrayList<>();
+    Gson gson;
 
     static class Range {
         double xMin, yMin, xMax, yMax;
@@ -46,6 +48,8 @@ public class gamePanel extends JPanel implements MouseListener {
     public gamePanel(gameArena arena) {
         super();
         this.arena = arena;
+        gameJsonAdapter gameJson =new gameJsonAdapter(arena);
+        this.gson=gameJson.getGson();
         this.setBackground(Color.LIGHT_GRAY);
         this.setSize(800, 800);
         this.addMouseListener(this);
@@ -100,7 +104,8 @@ public class gamePanel extends JPanel implements MouseListener {
     private void printPokemons(Graphics g) {
         g.setColor(Color.YELLOW);
         //for (Pokemon p : arena.pokemons) {
-        ListIterator<Pokemon> iterator = arena.pokemons.listIterator();
+        getPokemons();
+        ListIterator<Pokemon> iterator = pokemons.listIterator();
         while(iterator.hasNext()){
             Pokemon p=iterator.next();
             DWGraph_DS.Position pos = p.get_pos();
@@ -154,9 +159,9 @@ public class gamePanel extends JPanel implements MouseListener {
             if (a.get_dest() != null)
                 g.drawString("Destination: " + a.get_dest().getKey(), x - imgSize / 2, y + imgSize + 3 * textSize);
             g.drawString("Speed: " + a.get_speed(), x - imgSize / 2, y + imgSize + 4 * textSize);
-            g.setFont(new Font("Arial", Font.PLAIN, textSize*2));
+            g.setFont(new Font("Arial", Font.PLAIN, textSize));
             if(arena.agentsToPokemons.get(a)!=null)
-            g.drawString("Chasing: " + arena.agentsToPokemons.get(a).get_edge().getSrc() + " -> " + arena.agentsToPokemons.get(a).get_edge().getDest(), x - imgSize / 2, y + imgSize + 4 * textSize);
+            g.drawString("Chasing: " + arena.agentsToPokemons.get(a).get_edge().getSrc() + " -> " + arena.agentsToPokemons.get(a).get_edge().getDest(), x - imgSize / 2, y + imgSize + 5 * textSize);
         }
     }
 
@@ -202,6 +207,57 @@ public class gamePanel extends JPanel implements MouseListener {
         Range range = new Range(xMin, yMin, xMax, yMax);
         return range;
     }
+
+    protected synchronized void getPokemons() {
+        JsonObject pokemonsJson = gson.fromJson(arena.game.getPokemons(), JsonObject.class);
+        JsonArray pokemonsJsonArray = pokemonsJson.get("Pokemons").getAsJsonArray();
+        List<Pokemon> newPokemons = new ArrayList<>();
+        boolean alreadyExists = false;
+        Pokemon newPokemon;
+        for (JsonElement e : pokemonsJsonArray) {
+            newPokemon = gson.fromJson(e.getAsJsonObject().get("Pokemon").toString(), Pokemon.class);
+            newPokemons.add(newPokemon);
+        }
+        /*
+        Remove pokemons that got caught
+         */
+
+        ListIterator<Pokemon> iterator = pokemons.listIterator();
+        while (iterator.hasNext()) {
+            Pokemon org_p = iterator.next();
+            //for (Pokemon org_p : pokemons) {
+
+            boolean stillExist = false;
+            for (Pokemon new_p : newPokemons) {
+                if (org_p.get_pos().equals(new_p.get_pos())) stillExist = true;
+            }
+            //if (!stillExist) pokemons.remove(org_p);
+            if (!stillExist) iterator.remove();
+        }
+        ListIterator<Pokemon> newIterator = newPokemons.listIterator();
+        while (newIterator.hasNext()) {
+            Pokemon new_p = newIterator.next();
+            //for (Pokemon new_p : newPokemons) {
+            boolean isNew = true;
+            for (Pokemon org_p : pokemons) {
+                if (new_p.get_pos().equals(org_p.get_pos())) isNew = false;
+            }
+            if (isNew) {
+                //pokemons.add(new_p);
+                iterator.add(new_p);
+            }
+            /*if(!pokemons.contains(p)){
+                pokemons.add(p);
+            }*/
+        }
+
+        for (Pokemon p : pokemons) {
+            if (p.get_edge() == null) {
+                p.set_edge(arena.findEdge(p.get_pos()));
+            }
+        }
+    }
+
 
     @Override
     public void mouseClicked(MouseEvent e) {

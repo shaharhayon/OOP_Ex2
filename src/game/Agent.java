@@ -66,46 +66,53 @@ public class Agent implements Runnable {
     public void run() {
         _arena.getPokemons();
         this.update(_game.getAgents());
-        Pokemon p=_arena.agentsToPokemons.get(this);
+
         DWGraph_DS.Position pos;
         DWGraph_DS.Edge e;
-
-        if(this.get_dest() != null && p!=null &&this.get_dest().getKey()==p.get_edge().getDest()){
+        Pokemon p = _arena.agentsToPokemons.get(this);
+        if (this.get_dest() != null && p != null && this.get_dest().getKey() == p.get_edge().getDest()) {
             _arena.agentsToPokemons.remove(this);
             _arena.getPokemons();
         }
-
-        if(p==null|| this.get_dest() == null||
-        !_arena.pokemons.contains(p)){
+        if (p == null || this.get_dest() == null ||
+                !_arena.pokemons.contains(p)) {
             /*
             find new pokemon and set as destination for this agent
              */
             _arena.getPokemons();
             p = _arena.findClosestPokemon(this);
-            _arena.agentsToPokemons.put(this,p);
+            _arena.agentsToPokemons.put(this, p);
 
-            pos=p.get_pos();
+            pos = p.get_pos();
             e = (DWGraph_DS.Edge) _arena.findEdge(pos);
-            if(this.get_src().getKey()==e.getSrc()){
+            if (this.get_src().getKey() == e.getSrc()) {
                 this.set_dest(_arena.G.getNode(e.getDest()));
-            }
-            else{
-                this.set_dest(_arena.G_algo.shortestPath(this.get_src().getKey(),e.getSrc()).get(0));
+            } else {
+                DWGraph_DS.Node dest = (DWGraph_DS.Node) _arena.G_algo.shortestPath(this.get_src().getKey(), e.getSrc()).get(0);
+                if (_arena.G.getEdge(this.get_src().getKey(), dest.getKey()) != null)
+                    this.set_dest(dest);
+                else{
+                    this.set_dest(_arena.G_algo.shortestPath(this.get_src().getKey(),dest.getKey()).get(0));
+                }
             }
         }
 
 
-        if (this.get_src() == this.get_dest()||this.get_dest() == null)  {
+        if (this.get_src() == this.get_dest() || this.get_dest() == null) {
             /*
             find next destination node for this pokemon
              */
-            pos=p.get_pos();
+            pos = p.get_pos();
             e = (DWGraph_DS.Edge) _arena.findEdge(pos);
-            if(this.get_src().getKey()==e.getSrc()){
+            if (this.get_src().getKey() == e.getSrc()) {
                 this.set_dest(_arena.G.getNode(e.getDest()));
-            }
-            else{
-                this.set_dest(_arena.G_algo.shortestPath(this.get_src().getKey(),e.getSrc()).get(0));
+            } else {
+                DWGraph_DS.Node dest = (DWGraph_DS.Node) _arena.G_algo.shortestPath(this.get_src().getKey(), e.getSrc()).get(0);
+                if (_arena.G.getEdge(this.get_src().getKey(), dest.getKey()) != null)
+                    this.set_dest(dest);
+                else{
+                    this.set_dest(_arena.G_algo.shortestPath(this.get_src().getKey(),dest.getKey()).get(0));
+                }
             }
 
             //set_dest(_arena.findAgentDest(this));

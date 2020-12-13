@@ -7,14 +7,16 @@ import javax.swing.*;
 
 public class Ex2 {
     public static void main(String[] args) {
-        int level_num = 0;
-        game_service game = Game_Server_Ex2.getServer(20);
+        int level = 23;
+        //long id=Integer.parseInt(args[0]);
+        //int level=Integer.parseInt(args[1]);
+        game_service game = Game_Server_Ex2.getServer(level);
         System.out.println(game.getGraph());
         System.out.println(game.getPokemons());
         System.out.println(game);
         System.out.println(game.getAgents());
         System.out.println(game.getGraph());
-
+        //game.login(id);
         startScreen start = new startScreen(game);
         while (start.isVisible()) {
             try {

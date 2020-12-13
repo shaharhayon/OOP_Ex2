@@ -186,8 +186,9 @@ public class gameArena {
 
         DWGraph_DS.Node node = (DWGraph_DS.Node) a.get_src();
         HashMap<Pokemon, DWGraph_DS.Node[]> map = new HashMap<>();
-        DWGraph_DS.Node arr[] = new DWGraph_DS.Node[2];
+        //DWGraph_DS.Node arr[] = new DWGraph_DS.Node[2];
         for (Pokemon p : pokemons) {
+            DWGraph_DS.Node arr[] = new DWGraph_DS.Node[2];
             arr[0] = (DWGraph_DS.Node) G.getNode(p.get_edge().getSrc()); // BeforeLast
             arr[1] = (DWGraph_DS.Node) G.getNode(p.get_edge().getDest()); // Last
             map.put(p, arr);
