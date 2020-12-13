@@ -28,7 +28,7 @@ public class Ex2 {
         while (game.isRunning()) {
             for (Agent a : arena.agents) {
                 a.run();
-                if(a.get_dest()==null) continue;
+                //if(a.get_dest()==null) continue;
                 game.chooseNextEdge(a.getID(), a.get_dest().getKey());
             }
             game.move();
@@ -40,8 +40,6 @@ public class Ex2 {
                 e.printStackTrace();
             }
             //System.out.println("moved");
-
-
 
         }
     }

@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import gameClient.util.Point3D;
+//import gameClient.util.Point3D;
 import org.json.JSONObject;
 
 public class Agent implements Runnable {
@@ -31,6 +31,8 @@ public class Agent implements Runnable {
         this.G = g;
         this._arena = arena;
         this._game = arena.game;
+        this.run();
+        //set_dest(_arena.findAgentDest(this));
     }
 
     /*@Override
@@ -62,19 +64,52 @@ public class Agent implements Runnable {
 
     @Override
     public void run() {
-            this.update(_game.getAgents());
-            if ((this.get_src() == this.get_dest()) || this._arena.agentsToPokemons.get(this) == null) {
-                _arena.pokemons.remove(this._arena.agentsToPokemons.get(this));
-                this._arena.agentsToPokemons.remove(this);
-                set_dest(_arena.findAgentDest(this));
+        _arena.getPokemons();
+        this.update(_game.getAgents());
+        Pokemon p=_arena.agentsToPokemons.get(this);
+        DWGraph_DS.Position pos;
+        DWGraph_DS.Edge e;
+
+        if(this.get_dest() != null && p!=null &&this.get_dest().getKey()==p.get_edge().getDest()){
+            _arena.agentsToPokemons.remove(this);
+            _arena.getPokemons();
+        }
+
+        if(p==null|| this.get_dest() == null||
+        !_arena.pokemons.contains(p)){
+            /*
+            find new pokemon and set as destination for this agent
+             */
+            _arena.getPokemons();
+            p = _arena.findClosestPokemon(this);
+            _arena.agentsToPokemons.put(this,p);
+
+            pos=p.get_pos();
+            e = (DWGraph_DS.Edge) _arena.findEdge(pos);
+            if(this.get_src().getKey()==e.getSrc()){
+                this.set_dest(_arena.G.getNode(e.getDest()));
             }
-            //System.out.println("Agent " + this.getID() + " is running.");
-            this.update(_game.getAgents());
-            /*if ((this.get_src() == this.get_dest()) ||
-                    this._arena.agentsToPokemons.get(this) == null) {
-                this._arena.agentsToPokemons.remove(this);
-                set_dest(_arena.findAgentDest(this));
-            }*/
+            else{
+                this.set_dest(_arena.G_algo.shortestPath(this.get_src().getKey(),e.getSrc()).get(0));
+            }
+        }
+
+
+        if (this.get_src() == this.get_dest()||this.get_dest() == null)  {
+            /*
+            find next destination node for this pokemon
+             */
+            pos=p.get_pos();
+            e = (DWGraph_DS.Edge) _arena.findEdge(pos);
+            if(this.get_src().getKey()==e.getSrc()){
+                this.set_dest(_arena.G.getNode(e.getDest()));
+            }
+            else{
+                this.set_dest(_arena.G_algo.shortestPath(this.get_src().getKey(),e.getSrc()).get(0));
+            }
+
+            //set_dest(_arena.findAgentDest(this));
+        }
 
     }
 

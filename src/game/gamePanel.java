@@ -16,10 +16,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class gamePanel extends JPanel implements MouseListener {
@@ -68,9 +66,9 @@ public class gamePanel extends JPanel implements MouseListener {
         long time = arena.game.timeToEnd();
         g.drawString(String.valueOf(time), 10, textSize);
         printNodes(g);
-        arena.getPokemons();
+        //arena.getPokemons();
         printPokemons(g);
-        arena.getAgents();
+        //arena.getAgents();
         printAgents(g);
         arena.getStats();
         printStats(g);
@@ -101,7 +99,10 @@ public class gamePanel extends JPanel implements MouseListener {
 
     private void printPokemons(Graphics g) {
         g.setColor(Color.YELLOW);
-        for (Pokemon p : arena.pokemons) {
+        //for (Pokemon p : arena.pokemons) {
+        ListIterator<Pokemon> iterator = arena.pokemons.listIterator();
+        while(iterator.hasNext()){
+            Pokemon p=iterator.next();
             DWGraph_DS.Position pos = p.get_pos();
             int x = (int) scale(pos.x(), graphRange.xMin, graphRange.xMax, OFFSET, this.getWidth() - OFFSET);
             int y = (int) scale(pos.y(), graphRange.yMin, graphRange.yMax, OFFSET, this.getHeight() - OFFSET);
@@ -154,13 +155,17 @@ public class gamePanel extends JPanel implements MouseListener {
                 g.drawString("Destination: " + a.get_dest().getKey(), x - imgSize / 2, y + imgSize + 3 * textSize);
             g.drawString("Speed: " + a.get_speed(), x - imgSize / 2, y + imgSize + 4 * textSize);
             g.setFont(new Font("Arial", Font.PLAIN, textSize*2));
-            g.drawString("Chasing: " + arena.agentsToPokemons.get(a), x - imgSize / 2, y + imgSize + 4 * textSize);
+            if(arena.agentsToPokemons.get(a)!=null)
+            g.drawString("Chasing: " + arena.agentsToPokemons.get(a).get_edge().getSrc() + " -> " + arena.agentsToPokemons.get(a).get_edge().getDest(), x - imgSize / 2, y + imgSize + 4 * textSize);
         }
     }
 
     private void printStats(Graphics g) {
         g.setFont(new Font("Arial", Font.BOLD, textSize));
         g.setColor(Color.BLACK);
+
+        g.drawString("Grade: " + arena.stats.get("Grade"), this.getWidth()-100, 10);
+
         int startPixel = 10;
         g.drawString("Moves: " + arena.stats.get("Moves"), startPixel, this.getHeight() - 3 * textSize);
 

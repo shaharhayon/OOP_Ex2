@@ -1,9 +1,6 @@
 package gameClient;
 import Server.Game_Server_Ex2;
-import api.directed_weighted_graph;
-import api.edge_data;
-import api.game_service;
-import api.node_data;
+import api.*;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -31,6 +28,22 @@ public class SimpleGameClient {
 		System.out.println(game.getPokemons());
 		int src_node = 0;  // arbitrary node, you should start at one of the fruits
 		game.addAgent(src_node);
+
+		DWGraph_Algo g_algo = new DWGraph_Algo();
+		g_algo.loadfromString(g);
+
+		Arena ar=new Arena();
+		ar.setGraph(g_algo.getGraph());
+		;
+		//ar.set_info(info);
+		MyFrame frame=new MyFrame("Game");
+
+		//frame.update(g_algo.getGraph(),ar,);
+
+
+
+
+		frame.setVisible(true);
 		game.startGame();
 		int i=0;
 		while(game.isRunning()) {

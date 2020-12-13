@@ -32,6 +32,7 @@ public class Arena {
 
 	public Arena() {;
 		_info = new ArrayList<String>();
+
 	}
 	private Arena(directed_weighted_graph g, List<CL_Agent> r, List<CL_Pokemon> p) {
 		_gg = g;

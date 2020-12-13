@@ -186,6 +186,30 @@ public class DWGraph_DS implements directed_weighted_graph {
             return Math.sqrt(Math.pow(g.x() - this.x, 2) + Math.pow(g.y() - this.y, 2) + Math.pow(g.z() - this.z, 2));
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Position)) return false;
+
+            Position position = (Position) o;
+
+            if (Double.compare(position.x, x) != 0) return false;
+            if (Double.compare(position.y, y) != 0) return false;
+            return Double.compare(position.z, z) == 0;
+        }
+
+        @Override
+        public int hashCode() {
+            int result;
+            long temp;
+            temp = Double.doubleToLongBits(x);
+            result = (int) (temp ^ (temp >>> 32));
+            temp = Double.doubleToLongBits(y);
+            result = 31 * result + (int) (temp ^ (temp >>> 32));
+            temp = Double.doubleToLongBits(z);
+            result = 31 * result + (int) (temp ^ (temp >>> 32));
+            return result;
+        }
     }
 
     static int nodeSize = 0, edgeSize = 0, MC = 0;

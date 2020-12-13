@@ -31,7 +31,8 @@ public class gameJsonAdapter {
             String xy[];
             xy = pos.split(",");
             DWGraph_DS.Position point = new DWGraph_DS.Position(Double.parseDouble(xy[0]), Double.parseDouble(xy[1]), 0);
-            return new Agent(id, value, speed, src, dest, point,G,arena);
+            Agent a= new Agent(id, value, speed, src, dest, point,G,arena);
+            return a;
         };
         gsonBuilder.registerTypeAdapter(Agent.class, agentDeserializer);
 
