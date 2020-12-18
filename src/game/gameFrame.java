@@ -5,15 +5,14 @@ import api.game_service;
 import javax.swing.*;
 
 public class gameFrame extends JFrame {
-    gamePanel panel;
 
-    public gameFrame(gameArena arena) {
+    public gameFrame() {
         super();
         this.setSize(800, 800);
         this.setVisible(true);
-        panel = new gamePanel(arena);
+        gamePanel panel = new gamePanel();
         this.add(panel);
-        arena.game.startGame();
+        gameArena.getArena().game.startGame();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 

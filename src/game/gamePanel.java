@@ -45,11 +45,10 @@ public class gamePanel extends JPanel implements MouseListener {
 
     }
 
-    public gamePanel(gameArena arena) {
+    public gamePanel() {
         super();
-        this.arena = arena;
-        gameJsonAdapter gameJson =new gameJsonAdapter(arena);
-        this.gson=gameJson.getGson();
+        this.arena = gameArena.getArena();
+        this.gson=gameJsonAdapter.getGson();
         this.setBackground(Color.LIGHT_GRAY);
         this.setSize(800, 800);
         this.addMouseListener(this);
@@ -119,15 +118,13 @@ public class gamePanel extends JPanel implements MouseListener {
                 e.printStackTrace();
             }
             int imgSize = (int) Math.sqrt(this.getHeight() * this.getWidth()) / 20;
-            //int textSize = imgSize / 5;
             img = img.getScaledInstance(imgSize, imgSize, Image.SCALE_SMOOTH);
             g.drawImage(img, x - imgSize / 2, y - imgSize / 2, null);
             g.setFont(new Font("Arial", Font.PLAIN, textSize));
-            g.drawString("Value: " + p.get_value(), x - imgSize / 2, y - imgSize / 5);
+            //g.drawString("Value: " + p.get_value(), x - imgSize / 2, y - imgSize / 5);
             g.setColor(Color.BLACK);
             g.setFont(new Font("Arial", Font.BOLD, textSize));
-            g.drawString("Edge: " + p.get_edge().getSrc() + " -> " + p.get_edge().getDest(), x - imgSize / 2, y + imgSize);
-            //g.fillOval(x - nodeSize / 2, y - nodeSize / 2, nodeSize, nodeSize);
+            //g.drawString("Edge: " + p.get_edge().getSrc() + " -> " + p.get_edge().getDest(), x - imgSize / 2, y + imgSize);
         }
     }
 
@@ -151,9 +148,7 @@ public class gamePanel extends JPanel implements MouseListener {
             g.drawImage(img, x - imgSize / 2, y - imgSize / 2, null);
             g.setFont(new Font("Arial", Font.PLAIN, textSize));
             g.setColor(Color.BLACK);
-            //g.drawString("Value: " + p.get_value(),x-imgSize/2,y-imgSize/5);
-            //g.fillOval(x - nodeSize / 2, y - nodeSize / 2, nodeSize, nodeSize);
-            g.drawString("Agent " + a.getID(), x - imgSize / 2, y + imgSize);
+            /*g.drawString("Agent " + a.getID(), x - imgSize / 2, y + imgSize);
             g.drawString("Value: " + a.get_value(), x - imgSize / 2, y + imgSize + textSize);
             g.drawString("Source: " + a.get_src().getKey(), x - imgSize / 2, y + imgSize + 2 * textSize);
             if (a.get_dest() != null)
@@ -161,7 +156,7 @@ public class gamePanel extends JPanel implements MouseListener {
             g.drawString("Speed: " + a.get_speed(), x - imgSize / 2, y + imgSize + 4 * textSize);
             g.setFont(new Font("Arial", Font.PLAIN, textSize));
             if(arena.agentsToPokemons.get(a)!=null)
-            g.drawString("Chasing: " + arena.agentsToPokemons.get(a).get_edge().getSrc() + " -> " + arena.agentsToPokemons.get(a).get_edge().getDest(), x - imgSize / 2, y + imgSize + 5 * textSize);
+            g.drawString("Chasing: " + arena.agentsToPokemons.get(a).get_edge().getSrc() + " -> " + arena.agentsToPokemons.get(a).get_edge().getDest(), x - imgSize / 2, y + imgSize + 5 * textSize);*/
         }
     }
 

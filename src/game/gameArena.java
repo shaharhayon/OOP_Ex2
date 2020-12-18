@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class gameArena {
-    public static final double EPS = 0.001 * 0.001;
+    public static final double EPS = 0.001 * 0.0001;
     public DWGraph_DS G;
     public DWGraph_Algo G_algo;
     public game_service game;
@@ -21,28 +21,51 @@ public class gameArena {
     public List<Agent> agents = new ArrayList<>();
     public HashMap<String, String> stats;
     public Gson gson;
-    public gameFrame gf;
-    public HashMap<Agent, List<node_data>> agentsPath = new HashMap<>();
+/*    public gameFrame gf;
+    public HashMap<Agent, List<node_data>> agentsPath = new HashMap<>();*/
     public HashMap<Agent, Pokemon> agentsToPokemons = new HashMap<>();
     private boolean firstAgent = true;
 
-    public gameArena(game_service game) {
+    private static final gameArena arena=new gameArena();
+
+
+    private gameArena(){
+
+    }
+
+    public static void initArena(game_service game){
+        arena.game = game;
+        arena.gson = gameJsonAdapter.getGson();
+        arena.initGraph();
+        arena.getPokemons();
+        arena.getStats();
+        arena.getAgents();
+    }
+
+    public static gameArena getArena(){
+        if(arena.game!=null)
+            return arena;
+        else
+            return null;
+    }
+
+ /*   public gameArena(game_service game) {
         this.game = game;
         this.gson = new gameJsonAdapter(this).getGson();
         initGraph();
         getPokemons();
         getStats();
         getAgents();
-/*        Thread pokemonsUpdater = new Thread() {
+        Thread pokemonsUpdater = new Thread() {
             public void run() {
                 getPokemons();
             }
         };
         pokemonsUpdater.setName("PokemonsThread");
-        pokemonsUpdater.start();*/
+        pokemonsUpdater.start();
 
         gf = new gameFrame(this);
-    }
+    }*/
 
     private void initGraph() {
         File file = new File("./tmp_graph.json");
@@ -61,13 +84,13 @@ public class gameArena {
     }
 
     protected synchronized void getPokemons() {
-        JsonObject pokemonsJson = gson.fromJson(game.getPokemons(), JsonObject.class);
+        JsonObject pokemonsJson = arena.gson.fromJson(game.getPokemons(), JsonObject.class);
         JsonArray pokemonsJsonArray = pokemonsJson.get("Pokemons").getAsJsonArray();
         List<Pokemon> newPokemons = new ArrayList<>();
         boolean alreadyExists = false;
         Pokemon newPokemon;
         for (JsonElement e : pokemonsJsonArray) {
-            newPokemon = gson.fromJson(e.getAsJsonObject().get("Pokemon").toString(), Pokemon.class);
+            newPokemon = arena.gson.fromJson(e.getAsJsonObject().get("Pokemon").toString(), Pokemon.class);
             newPokemons.add(newPokemon);
         }
         /*

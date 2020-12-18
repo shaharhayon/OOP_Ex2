@@ -8,6 +8,8 @@ import com.google.gson.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -31,11 +33,12 @@ public class startScreen extends JFrame implements MouseListener {
     private HashMap<String, String> stats;
     private int clicks = 0;
     private int numOfAgents;
+    private JButton button = new JButton("Place agents automatically");
 
 
     public startScreen(game_service game) {
         super();
-
+        this.setLayout(null);
         gson = JsonDeserializer();
         this.game = game;
         initGraph();
@@ -44,6 +47,13 @@ public class startScreen extends JFrame implements MouseListener {
         graphRange = graphRange(G);
         addMouseListener(this);
         numOfAgents = Integer.parseInt(this.stats.get("Agents"));
+        button.setBounds(10, 10, 200, 50);
+        button.setVisible(true);
+        button.setEnabled(true);
+        button.addActionListener(e -> {
+            placeAgents();
+        });
+        this.add(button);
         this.setSize(800, 800);
         this.setVisible(true);
     }
@@ -57,6 +67,36 @@ public class startScreen extends JFrame implements MouseListener {
         getPokemons();
         printPokemons(g);
         printStats(g);
+    }
+
+    private void placeAgents() {
+        int numOfAgents=Integer.parseInt(stats.get("Agents"));
+        HashMap<Integer,Integer> nodes = new HashMap<>();
+        for (Pokemon p : pokemons) {
+            int src;
+            if (p.get_type() == 1) {
+                src = Math.min(p.get_edge().getSrc(), p.get_edge().getDest());
+            } else {
+                src = Math.max(p.get_edge().getSrc(), p.get_edge().getDest());
+            }
+            nodes.put(src,((int) p.get_value()));
+        }
+        for(int i=0;i<numOfAgents;i++){
+            int maxValue=0, maxNode = 0;
+            for(Map.Entry<Integer,Integer> e : nodes.entrySet()){
+                if(e.getValue()>maxValue){
+                    maxValue=e.getValue();
+                    maxNode=e.getKey();
+                }
+            }
+            nodes.remove(maxNode);
+            game.addAgent(maxNode);
+        }
+            this.setVisible(false);
+            synchronized (this) {
+                notifyAll();
+            }
+            return;
     }
 
     private double scale(double n, double MIN_INPUT, double MAX_INPUT, double MIN_OUTPUT, double MAX_OUTPUT) {
@@ -136,10 +176,10 @@ public class startScreen extends JFrame implements MouseListener {
             img = img.getScaledInstance(imgSize, imgSize, Image.SCALE_SMOOTH);
             g.drawImage(img, x - imgSize / 2, y - imgSize / 2, null);
             g.setFont(new Font("Arial", Font.PLAIN, textSize));
-            g.drawString("Value: " + p.get_value(), x - imgSize / 2, y - imgSize / 5);
+            g.drawString("Value: " + p.get_value(), x - imgSize / 2, y - imgSize / 2);
             g.setColor(Color.BLACK);
             g.setFont(new Font("Arial", Font.BOLD, textSize));
-            g.drawString("Edge: " + p.get_edge().getSrc() + " -> " + p.get_edge().getDest(), x - imgSize / 2, y + imgSize);
+            //g.drawString("Edge: " + p.get_edge().getSrc() + " -> " + p.get_edge().getDest(), x - imgSize / 2, y + imgSize);
             //g.fillOval(x - nodeSize / 2, y - nodeSize / 2, nodeSize, nodeSize);
         }
     }
@@ -262,8 +302,14 @@ public class startScreen extends JFrame implements MouseListener {
                     game.addAgent(key);
                     System.out.println(game.getAgents());
                     clicks++;
-                    if (clicks >= numOfAgents) this.setVisible(false);
-                    return;
+
+                    if (clicks >= numOfAgents) {
+                        this.setVisible(false);
+                        synchronized (this) {
+                            notifyAll();
+                        }
+                        return;
+                    }
                 }
             }
         }

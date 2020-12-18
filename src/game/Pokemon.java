@@ -15,8 +15,10 @@ public class Pokemon {
         this._pos = _pos;
     }
 
+
     public edge_data get_edge() {
-        return _edge;
+return this._edge;
+
     }
 
     public void set_edge(edge_data _edge) {
