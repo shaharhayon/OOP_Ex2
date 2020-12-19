@@ -4,9 +4,6 @@ import com.google.gson.*;
 
 import java.io.*;
 import java.lang.reflect.Type;
-import java.nio.Buffer;
-import java.nio.CharBuffer;
-import java.nio.file.Files;
 import java.util.*;
 
 public class DWGraph_Algo implements dw_graph_algorithms {
@@ -79,22 +76,22 @@ public class DWGraph_Algo implements dw_graph_algorithms {
     /*
     Comperator for a Priority Queue
      */
-    Comparator<node_data> weightComperator = new Comparator<node_data>() {
-        @Override
-        public int compare(node_data o1, node_data o2) {
-            if (o1.getWeight() > o2.getWeight()) return 1;
-            else if (o1.getWeight() < o2.getWeight()) return -1;
-            else return 0;
-        }
+    Comparator<node_data> weightComperator = (o1, o2) -> {
+        if (o1.getWeight() > o2.getWeight()) return 1;
+        else if (o1.getWeight() < o2.getWeight()) return -1;
+        else return 0;
     };
 
+    /*
+    shortestPath is implemented using Dijkstra's algorithm,
+    using a PriorityQueue as a heap for better performance.
+     */
     @Override
     public List<node_data> shortestPath(int src, int dest) {
         reset();
         for (node_data node : G.getV()) {
             node.setWeight(Double.POSITIVE_INFINITY);
         }
-
 
         DWGraph_DS.Node currentNode = (DWGraph_DS.Node) G.getNode(src);
         currentNode.setWeight(0);
@@ -103,7 +100,6 @@ public class DWGraph_Algo implements dw_graph_algorithms {
         HashMap<Integer, node_data> parent = new HashMap<>();
         parent.put(src, null);
 
-        /*while (unvisitedNodes.peek().getWeight() != Double.POSITIVE_INFINITY) {*/
         while (currentNode.getWeight() != Double.POSITIVE_INFINITY) {
             if (G.getNode(dest).getTag() == 1) {
                 break;
@@ -262,12 +258,11 @@ public class DWGraph_Algo implements dw_graph_algorithms {
         }
     }
 
-
+    /*
+    Same as the normal load method, but loading from a string rather than a file.
+    */
     public boolean loadfromString(String str) {
-        /*
-        Read JSON file to a string
-            Create a builder for the specific JSON format
-             */
+
             GsonBuilder gsonBuilder = new GsonBuilder();
             JsonDeserializer<DWGraph_DS> deserializer = new JsonDeserializer<DWGraph_DS>() {
                 @Override
@@ -309,7 +304,9 @@ public class DWGraph_Algo implements dw_graph_algorithms {
             return true;
         }
 
-
+    /*
+    Standard bfs searching algorithm
+     */
     private void bfs(int nodeKey) {
         Queue<Integer> q = new LinkedList<>();
         // initialize all the nodes

@@ -2,14 +2,14 @@ package game;
 
 import Server.Game_Server_Ex2;
 import api.*;
-import com.google.gson.Gson;
-
-import javax.swing.*;
 
 public class Ex2 {
     public static void main(String[] args) {
         int level;
         long id;
+        /*
+        If no arguments were given using a terminal, opens a window to select them.
+         */
         if (args.length == 0) {
             levelSelect levelSelector = new levelSelect("Level Selection");
             levelSelector.setVisible(true);
@@ -37,7 +37,6 @@ public class Ex2 {
         System.out.println(game);
         System.out.println(game.getAgents());
         System.out.println(game.getGraph());
-        //game.login(id);
 
         startScreen start = new startScreen(game);
         synchronized (start){
@@ -47,9 +46,6 @@ public class Ex2 {
                 e.printStackTrace();
             }
         }
-
-
-
         gameArena.initArena(game);
         gameArena arena = gameArena.getArena();
 
@@ -58,7 +54,6 @@ public class Ex2 {
         while (game.isRunning()) {
             for (Agent a : arena.agents) {
                 a.run();
-                //if(a.get_dest()==null) continue;
                 game.chooseNextEdge(a.getID(), a.get_dest().getKey());
             }
             game.move();
@@ -69,9 +64,5 @@ public class Ex2 {
             }
 
         }
-    }
-
-    public void placeAgents(){
-
     }
 }

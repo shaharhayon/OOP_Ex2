@@ -9,6 +9,7 @@ public class gameFrame extends JFrame {
     public gameFrame() {
         super();
         this.setSize(800, 800);
+        this.setLocationRelativeTo(null);
         this.setVisible(true);
         gamePanel panel = new gamePanel();
         this.add(panel);

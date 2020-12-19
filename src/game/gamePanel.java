@@ -56,10 +56,6 @@ public class gamePanel extends JPanel implements MouseListener {
         graphRange = graphRange(arena.G);
     }
 
-    void reset() {
-        repaint();
-    }
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -67,11 +63,9 @@ public class gamePanel extends JPanel implements MouseListener {
         this.repaint();
         textSize = ((int) Math.sqrt(this.getHeight() * this.getWidth()) / 60);
         long time = arena.game.timeToEnd();
-        g.drawString(String.valueOf(time), 10, textSize);
+        g.drawString("Time left: "+time/1000, 10, textSize);
         printNodes(g);
-        //arena.getPokemons();
         printPokemons(g);
-        //arena.getAgents();
         printAgents(g);
         arena.getStats();
         printStats(g);
@@ -102,7 +96,6 @@ public class gamePanel extends JPanel implements MouseListener {
 
     private void printPokemons(Graphics g) {
         g.setColor(Color.YELLOW);
-        //for (Pokemon p : arena.pokemons) {
         getPokemons();
         ListIterator<Pokemon> iterator = pokemons.listIterator();
         while(iterator.hasNext()){
@@ -124,7 +117,6 @@ public class gamePanel extends JPanel implements MouseListener {
             //g.drawString("Value: " + p.get_value(), x - imgSize / 2, y - imgSize / 5);
             g.setColor(Color.BLACK);
             g.setFont(new Font("Arial", Font.BOLD, textSize));
-            //g.drawString("Edge: " + p.get_edge().getSrc() + " -> " + p.get_edge().getDest(), x - imgSize / 2, y + imgSize);
         }
     }
 
@@ -185,11 +177,17 @@ public class gamePanel extends JPanel implements MouseListener {
             g.drawString("ID: " + arena.stats.get("ID"), startPixel, this.getHeight() - 10);
     }
 
+    /*
+    Scale coordinates
+     */
     private double scale(double n, double MIN_INPUT, double MAX_INPUT, double MIN_OUTPUT, double MAX_OUTPUT) {
         double tmp = (((n - MIN_INPUT) / (MAX_INPUT - MIN_INPUT)) * (MAX_OUTPUT - MIN_OUTPUT) + MIN_OUTPUT);
         return tmp;
     }
 
+    /*
+    Find coordinate range according to the selected graph
+     */
     private Range graphRange(directed_weighted_graph g) {
         double xMin = Double.MAX_VALUE, yMin = Double.MAX_VALUE, xMax = 0, yMax = 0;
         for (node_data p : g.getV()) {
@@ -207,7 +205,6 @@ public class gamePanel extends JPanel implements MouseListener {
         JsonObject pokemonsJson = gson.fromJson(arena.game.getPokemons(), JsonObject.class);
         JsonArray pokemonsJsonArray = pokemonsJson.get("Pokemons").getAsJsonArray();
         List<Pokemon> newPokemons = new ArrayList<>();
-        boolean alreadyExists = false;
         Pokemon newPokemon;
         for (JsonElement e : pokemonsJsonArray) {
             newPokemon = gson.fromJson(e.getAsJsonObject().get("Pokemon").toString(), Pokemon.class);
@@ -216,34 +213,25 @@ public class gamePanel extends JPanel implements MouseListener {
         /*
         Remove pokemons that got caught
          */
-
         ListIterator<Pokemon> iterator = pokemons.listIterator();
         while (iterator.hasNext()) {
             Pokemon org_p = iterator.next();
-            //for (Pokemon org_p : pokemons) {
-
             boolean stillExist = false;
             for (Pokemon new_p : newPokemons) {
                 if (org_p.get_pos().equals(new_p.get_pos())) stillExist = true;
             }
-            //if (!stillExist) pokemons.remove(org_p);
             if (!stillExist) iterator.remove();
         }
         ListIterator<Pokemon> newIterator = newPokemons.listIterator();
         while (newIterator.hasNext()) {
             Pokemon new_p = newIterator.next();
-            //for (Pokemon new_p : newPokemons) {
             boolean isNew = true;
             for (Pokemon org_p : pokemons) {
                 if (new_p.get_pos().equals(org_p.get_pos())) isNew = false;
             }
             if (isNew) {
-                //pokemons.add(new_p);
                 iterator.add(new_p);
             }
-            /*if(!pokemons.contains(p)){
-                pokemons.add(p);
-            }*/
         }
 
         for (Pokemon p : pokemons) {

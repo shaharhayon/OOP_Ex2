@@ -5,8 +5,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
-import javax.swing.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -21,8 +19,6 @@ public class gameArena {
     public List<Agent> agents = new ArrayList<>();
     public HashMap<String, String> stats;
     public Gson gson;
-/*    public gameFrame gf;
-    public HashMap<Agent, List<node_data>> agentsPath = new HashMap<>();*/
     public HashMap<Agent, Pokemon> agentsToPokemons = new HashMap<>();
     private boolean firstAgent = true;
 
@@ -48,24 +44,6 @@ public class gameArena {
         else
             return null;
     }
-
- /*   public gameArena(game_service game) {
-        this.game = game;
-        this.gson = new gameJsonAdapter(this).getGson();
-        initGraph();
-        getPokemons();
-        getStats();
-        getAgents();
-        Thread pokemonsUpdater = new Thread() {
-            public void run() {
-                getPokemons();
-            }
-        };
-        pokemonsUpdater.setName("PokemonsThread");
-        pokemonsUpdater.start();
-
-        gf = new gameFrame(this);
-    }*/
 
     private void initGraph() {
         File file = new File("./tmp_graph.json");
@@ -100,30 +78,23 @@ public class gameArena {
         ListIterator<Pokemon> iterator = pokemons.listIterator();
         while (iterator.hasNext()) {
             Pokemon org_p = iterator.next();
-            //for (Pokemon org_p : pokemons) {
 
             boolean stillExist = false;
             for (Pokemon new_p : newPokemons) {
                 if (org_p.get_pos().equals(new_p.get_pos())) stillExist = true;
             }
-            //if (!stillExist) pokemons.remove(org_p);
             if (!stillExist) iterator.remove();
         }
         ListIterator<Pokemon> newIterator = newPokemons.listIterator();
         while (newIterator.hasNext()) {
             Pokemon new_p = newIterator.next();
-            //for (Pokemon new_p : newPokemons) {
             boolean isNew = true;
             for (Pokemon org_p : pokemons) {
                 if (new_p.get_pos().equals(org_p.get_pos())) isNew = false;
             }
             if (isNew) {
-                //pokemons.add(new_p);
                 iterator.add(new_p);
             }
-            /*if(!pokemons.contains(p)){
-                pokemons.add(p);
-            }*/
         }
 
         for (Pokemon p : pokemons) {
@@ -134,6 +105,10 @@ public class gameArena {
     }
 
 
+    /*
+    This method finds if a specific position is on an existing edge
+    returns that edge if it exists, else returns null
+     */
     protected edge_data findEdge(DWGraph_DS.Position p) {
         for (node_data node : this.G.getV()) {
             for (edge_data edge : this.G.getE(node.getKey())) {
@@ -145,7 +120,9 @@ public class gameArena {
         return null;
     }
 
-
+    /*
+    This method checks if a position is on an edge that goes from src -> dest
+     */
     private boolean isOnEdge(DWGraph_DS.Position src, DWGraph_DS.Position dest, DWGraph_DS.Position p) {
         boolean ans = false;
         double dist = src.distance(dest);
@@ -159,7 +136,6 @@ public class gameArena {
     protected void getAgents() {
         JsonObject agentsJson = gson.fromJson(game.getAgents(), JsonObject.class);
         JsonArray agentsJsonArray = agentsJson.get("Agents").getAsJsonArray();
-        //agents = new ArrayList<>();
         for (JsonElement e : agentsJsonArray) {
             int id = e.getAsJsonObject().get("Agent").getAsJsonObject().get("id").getAsInt();
 
@@ -170,20 +146,11 @@ public class gameArena {
                     break;
                 }
             }
-            //newPokemon = gson.fromJson(e.getAsJsonObject().get("Pokemon").toString(), Pokemon.class);
-//            Agent a = this.gson.fromJson(e.getAsJsonObject().get("Agent"), Agent.class);
             Agent a = this.gson.fromJson(e.getAsJsonObject().get("Agent").toString(), Agent.class);
 
             if (newAgent) {
-
                 this.agents.add(a);
                 System.out.println("agent added");
-                /*if (firstAgent) {
-                    //new Thread(a).start();
-                    Thread t = new Thread(a);
-                    t.setName("AgentsThread");
-                    t.start();
-                }*/
             }
         }
     }
@@ -193,23 +160,13 @@ public class gameArena {
 
     }
 
-    /*protected node_data findAgentDest(Agent a) {
-        DWGraph_DS.Node nextNode = null;
-        if ((agentsPath.get(a) == null) || (agentsPath.get(a).isEmpty())) {
-            agentsPath.remove(a);
-            agentsToPokemons.remove(a);
-            agentsPath.put(a, findClosestPokemon(a));
-        }
-        nextNode = (DWGraph_DS.Node) agentsPath.get(a).get(0);
-        agentsPath.get(a).remove(0);
-        return nextNode;
-    }*/
-
-    protected Pokemon findClosestPokemon(Agent a) { //List<node_data> findClosestPokemon(Agent a) {
+    /*
+    This method finds the closest pokemon from the pool to a selected agent
+     */
+    protected Pokemon findClosestPokemon(Agent a) {
 
         DWGraph_DS.Node node = (DWGraph_DS.Node) a.get_src();
         HashMap<Pokemon, DWGraph_DS.Node[]> map = new HashMap<>();
-        //DWGraph_DS.Node arr[] = new DWGraph_DS.Node[2];
         for (Pokemon p : pokemons) {
             DWGraph_DS.Node arr[] = new DWGraph_DS.Node[2];
             arr[0] = (DWGraph_DS.Node) G.getNode(p.get_edge().getSrc()); // BeforeLast
@@ -227,9 +184,5 @@ public class gameArena {
             }
         }
         return closestPokemon;
-        /*this.agentsToPokemons.put(a, closestPokemon);
-        List<node_data> result = G_algo.shortestPath(node.getKey(), map.get(closestPokemon)[0].getKey());
-        result.add(arr[1]);
-        return result;*/
     }
 }

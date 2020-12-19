@@ -68,7 +68,7 @@ public class Agent implements Runnable {
         }
     }*/
 
-    private boolean notChasingPokemon(){
+    private boolean notChasingPokemon() {
         Pokemon p = _arena.agentsToPokemons.get(this);
         if (this.get_dest() != null
                 && p != null
@@ -78,7 +78,7 @@ public class Agent implements Runnable {
             return false;
     }
 
-    private boolean pokemonCaught(){
+    private boolean pokemonCaught() {
         Pokemon p = _arena.agentsToPokemons.get(this);
         if (p == null
                 || this.get_dest() == null
@@ -88,17 +88,17 @@ public class Agent implements Runnable {
             return false;
     }
 
-    private boolean agentOnLastEdge(){
+    private boolean agentOnLastEdge() {
         Pokemon p = _arena.agentsToPokemons.get(this);
-        DWGraph_DS.Position pos =p.get_pos();
+        DWGraph_DS.Position pos = p.get_pos();
         DWGraph_DS.Edge e = (DWGraph_DS.Edge) _arena.findEdge(pos);
-        if(this.get_src().getKey() == e.getSrc()) return true;
+        if (this.get_src().getKey() == e.getSrc()) return true;
         else return false;
     }
 
-    private boolean arrivedAtNode(){
+    private boolean arrivedAtNode() {
         if (this.get_src() == this.get_dest() || this.get_dest() == null) return true;
-        else return  false;
+        else return false;
     }
 
     @Override
@@ -106,85 +106,61 @@ public class Agent implements Runnable {
         _arena.getPokemons();
         this.update(_game.getAgents());
 
-        /*DWGraph_DS.Position pos;
-        DWGraph_DS.Edge e;
-        Pokemon p = _arena.agentsToPokemons.get(this);
-        if (notChasingPokemon()) {
-            _arena.agentsToPokemons.remove(this);
-            _arena.getPokemons();
-        }*/
-        /*if (pokemonCaught()) {
-            *//*
-            find new pokemon and set as destination for this agent
-             *//*
-            _arena.getPokemons();
-            p = _arena.findClosestPokemon(this);
-            _arena.agentsToPokemons.put(this, p);
-
-            findNewDest();
-        }*/
         if (arrivedAtNode()) {
             /*
             find next destination node for this pokemon
+            if no path is present, or the chased pokemon has been captured by another random agent, find a new pokemon to chase
+            if the chased pokemon still exists, continue with the shortest path that was calculated before
+            in any other case, set the agent to chase a new pokemon, and release the pokemon it was chasing to the pool (this is here to prevent bugs)
              */
-            if(this.path.size()==0){
+            if ((this.path.size() == 0) || (_arena.agentsToPokemons.get(this) == null)) {
                 findNewDest();
-            }
-            else if(this.path.get(0)!=null) {
+            } else if (this.path.get(0) != null) {
                 this.set_dest(this.path.get(0));
                 this.path.remove(0);
-            }
-            else {
+            } else {
                 _arena.agentsToPokemons.remove(this);
                 findNewDest();
             }
-
-
-
-            //findNewDest();
         }
     }
 
+    /*
+    find closest pokemon in the pool,
+    and then find the shortest path to it
+    using DWGraph_Algo.shortestPath(src, dest)
+     */
     private void findNewDest() {
         _arena.getPokemons();
 
-        Pokemon p=_arena.findClosestPokemon(this);
-        DWGraph_DS.Position pos= p.get_pos();
-        DWGraph_DS.Edge e=(DWGraph_DS.Edge) _arena.findEdge(pos);;
+        Pokemon p = _arena.findClosestPokemon(this);
+        DWGraph_DS.Position pos = p.get_pos();
+        DWGraph_DS.Edge e = (DWGraph_DS.Edge) _arena.findEdge(pos);
+        ;
 
         int max = e.getSrc(), min = e.getDest();
-        if(max<min){
-            int tmp=max;
-            max=min;
-            min=tmp;
+        if (max < min) {
+            int tmp = max;
+            max = min;
+            min = tmp;
         }
         if (p.get_type() == 1)
-            p.set_edge(_arena.G.getEdge(min,max));
+            p.set_edge(_arena.G.getEdge(min, max));
         else
-            p.set_edge(_arena.G.getEdge(max,min));
+            p.set_edge(_arena.G.getEdge(max, min));
 
-        e= (DWGraph_DS.Edge) p.get_edge();
+        e = (DWGraph_DS.Edge) p.get_edge();
 
-        this.path=_arena.G_algo.shortestPath(this.get_src().getKey(), e.getSrc());
-
-
-
+        this.path = _arena.G_algo.shortestPath(this.get_src().getKey(), e.getSrc());
 
         path.add(_arena.G.getNode(e.getDest()));
-        _arena.agentsToPokemons.put(this,p);
-        /*if (agentOnLastEdge()) {
-            this.set_dest(_arena.G.getNode(e.getDest()));
-        } else {
-            DWGraph_DS.Node dest = (DWGraph_DS.Node) _arena.G_algo.shortestPath(this.get_src().getKey(), e.getSrc()).get(0);
-            if (_arena.G.getEdge(this.get_src().getKey(), dest.getKey()) != null)
-                this.set_dest(dest);
-            else{
-                this.set_dest(_arena.G_algo.shortestPath(this.get_src().getKey(),dest.getKey()).get(0));
-            }
-        }*/
+        _arena.agentsToPokemons.put(this, p);
     }
 
 
+    /*
+    Update game from to values from the server
+     */
     public void update(String json) {
         Gson gson = new gameJsonAdapter().getGson();
         JsonArray agentsArray = gson.fromJson(json, JsonObject.class).getAsJsonArray("Agents");

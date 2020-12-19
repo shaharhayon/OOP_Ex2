@@ -8,8 +8,6 @@ import com.google.gson.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -20,6 +18,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+/*
+This class is a window that lets you choose where you want to place the agents
+User can also choose to place the agents automatically
+ */
 public class startScreen extends JFrame implements MouseListener {
 
     Gson gson;
@@ -39,6 +42,8 @@ public class startScreen extends JFrame implements MouseListener {
     public startScreen(game_service game) {
         super();
         this.setLayout(null);
+        this.setSize(800, 800);
+        this.setLocationRelativeTo(null);
         gson = JsonDeserializer();
         this.game = game;
         initGraph();
@@ -54,7 +59,7 @@ public class startScreen extends JFrame implements MouseListener {
             placeAgents();
         });
         this.add(button);
-        this.setSize(800, 800);
+
         this.setVisible(true);
     }
 
@@ -69,9 +74,12 @@ public class startScreen extends JFrame implements MouseListener {
         printStats(g);
     }
 
+    /*
+    This method places the agents automatically, as close as possible to the pokemons present.
+     */
     private void placeAgents() {
-        int numOfAgents=Integer.parseInt(stats.get("Agents"));
-        HashMap<Integer,Integer> nodes = new HashMap<>();
+        int numOfAgents = Integer.parseInt(stats.get("Agents"));
+        HashMap<Integer, Integer> nodes = new HashMap<>();
         for (Pokemon p : pokemons) {
             int src;
             if (p.get_type() == 1) {
@@ -79,26 +87,29 @@ public class startScreen extends JFrame implements MouseListener {
             } else {
                 src = Math.max(p.get_edge().getSrc(), p.get_edge().getDest());
             }
-            nodes.put(src,((int) p.get_value()));
+            nodes.put(src, ((int) p.get_value()));
         }
-        for(int i=0;i<numOfAgents;i++){
-            int maxValue=0, maxNode = 0;
-            for(Map.Entry<Integer,Integer> e : nodes.entrySet()){
-                if(e.getValue()>maxValue){
-                    maxValue=e.getValue();
-                    maxNode=e.getKey();
+        for (int i = 0; i < numOfAgents; i++) {
+            int maxValue = 0, maxNode = 0;
+            for (Map.Entry<Integer, Integer> e : nodes.entrySet()) {
+                if (e.getValue() > maxValue) {
+                    maxValue = e.getValue();
+                    maxNode = e.getKey();
                 }
             }
             nodes.remove(maxNode);
             game.addAgent(maxNode);
         }
-            this.setVisible(false);
-            synchronized (this) {
-                notifyAll();
-            }
-            return;
+        this.setVisible(false);
+        synchronized (this) {
+            notifyAll();
+        }
+        return;
     }
 
+    /*
+    Scale coordinates
+     */
     private double scale(double n, double MIN_INPUT, double MAX_INPUT, double MIN_OUTPUT, double MAX_OUTPUT) {
         double tmp = (((n - MIN_INPUT) / (MAX_INPUT - MIN_INPUT)) * (MAX_OUTPUT - MIN_OUTPUT) + MIN_OUTPUT);
         return tmp;
@@ -120,6 +131,9 @@ public class startScreen extends JFrame implements MouseListener {
         this.G = (DWGraph_DS) G_algo.getGraph();
     }
 
+    /*
+    Find coordinate range according to the selected graph
+    */
     private gamePanel.Range graphRange(directed_weighted_graph g) {
         double xMin = Double.MAX_VALUE, yMin = Double.MAX_VALUE, xMax = 0, yMax = 0;
         for (node_data p : g.getV()) {
@@ -184,6 +198,9 @@ public class startScreen extends JFrame implements MouseListener {
         }
     }
 
+    /*
+    Update pokemons from the server
+     */
     protected void getPokemons() {
         JsonObject pokemonsJson = gson.fromJson(game.getPokemons(), JsonObject.class);
         JsonArray pokemonsJsonArray = pokemonsJson.get("Pokemons").getAsJsonArray();
@@ -198,6 +215,9 @@ public class startScreen extends JFrame implements MouseListener {
         }
     }
 
+    /*
+    This method checks if a position is on an edge that goes from src -> dest
+     */
     private boolean isOnEdge(DWGraph_DS.Position src, DWGraph_DS.Position dest, DWGraph_DS.Position p) {
         boolean ans = false;
         double dist = src.distance(dest);
@@ -208,6 +228,10 @@ public class startScreen extends JFrame implements MouseListener {
         return ans;
     }
 
+    /*
+    This method finds if a specific position is on an existing edge
+    returns that edge if it exists, else returns null
+     */
     private edge_data findEdge(DWGraph_DS.Position p) {
         for (node_data node : this.G.getV()) {
             for (edge_data edge : this.G.getE(node.getKey())) {

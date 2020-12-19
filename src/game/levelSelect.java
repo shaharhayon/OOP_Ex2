@@ -5,6 +5,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/*
+This class is a start game window, that lets you choose level and login to the game
+Only shows if the user did not enter those values from the terminal
+ */
 public class levelSelect extends JFrame implements ActionListener {
 
     private JButton startButton = new JButton("Start Game");
