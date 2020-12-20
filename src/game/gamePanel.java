@@ -69,6 +69,7 @@ public class gamePanel extends JPanel implements MouseListener {
         printAgents(g);
         arena.getStats();
         printStats(g);
+
         if(time < 0){
             int score =0;
             for(Agent a : arena.agents)
@@ -76,7 +77,6 @@ public class gamePanel extends JPanel implements MouseListener {
             g.setFont(new Font("Arial", Font.BOLD, textSize*5));
             g.drawString("Score: " + score,this.getWidth()/2 - textSize*8,this.getHeight()/2);
         }
-
     }
 
     private void printNodes(Graphics g) {
