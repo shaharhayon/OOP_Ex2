@@ -152,7 +152,7 @@ public class DWGraph_Algo implements dw_graph_algorithms {
 
                 for (node_data node : G.getV()) {
                     JsonObject jsonNodeObject = new JsonObject();
-                    JsonObject jsonEdgeObject = new JsonObject();
+
                     StringBuilder pos = new StringBuilder();
                     pos.append(node.getLocation().x());
                     pos.append(',');
@@ -164,8 +164,8 @@ public class DWGraph_Algo implements dw_graph_algorithms {
                     jsonNodeObject.addProperty("info", node.getInfo());
                     jsonNodeObject.addProperty("tag", node.getTag());
                     jsonGraph.get("Nodes").getAsJsonArray().add(jsonNodeObject);
-
                     for (edge_data e : G.getE(node.getKey())) {
+                        JsonObject jsonEdgeObject = new JsonObject();
                         jsonEdgeObject.addProperty("src", e.getSrc());
                         jsonEdgeObject.addProperty("w", e.getWeight());
                         jsonEdgeObject.addProperty("dest", e.getDest());
@@ -324,7 +324,10 @@ public class DWGraph_Algo implements dw_graph_algorithms {
                 }
                 G.getNode(currentNode).setTag(1);
             }
-            currentNode = q.poll();
+            if(q.peek()==null)
+                currentNode=-1;
+            else
+                currentNode = q.poll();
         }
     }
 
@@ -335,4 +338,5 @@ public class DWGraph_Algo implements dw_graph_algorithms {
             node.setInfo(new String());
         }
     }
+
 }
